@@ -15,6 +15,45 @@ visible Chrome window, or pass `-- --headed` to any command.
 These only create data. There are no assertions beyond "the property was
 submitted and shows up".
 
+## Quick start (Windows)
+
+You need **Node.js 18+** (nodejs.org) and **Git**.
+
+**1. Clone and install — once**
+
+```powershell
+cd C:\Users\<you>\source
+git clone <this repo's URL>
+cd neosure-create
+npm install
+npm run install:browsers
+```
+
+**2. Sign in — once, and again whenever a run says "Not signed in"**
+
+```powershell
+npm run auth:strata
+```
+
+A Chrome window opens. Sign in with **your own** Strata Manager account and
+wait until the Dashboard with **Add Property** appears, then close it.
+
+**3. Create properties — as often as you like**
+
+```powershell
+npm run create:strata          # one Strata Plan property
+npm run create:bmc             # one Building Committee + 3 schemes
+npm run create:bmc:headed      # same, but watch it in Chrome
+```
+
+The new property ID is printed in the terminal when a run finishes.
+
+**If something fails:** `npm run report` opens the results in your browser —
+click the failed test to see where it stopped.
+
+**Get updates:** `git pull` in the `neosure-create` folder.
+**Change what gets created** (names, insurer, amounts): `src/property-data.ts`.
+
 ## Setup
 
 Requires Node.js 18+.
