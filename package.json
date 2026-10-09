@@ -1,0 +1,25 @@
+{
+  "name": "neosure-create",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Playwright scripts that create a Strata Plan or Building Committee property through the Neosure Add Property wizard (OutSystems ODC)",
+  "scripts": {
+    "auth:strata": "playwright test --project=auth:strata",
+    "auth:broker": "playwright test --project=auth:broker",
+    "create": "playwright test --project=strata create-property.spec create-property-building-committee",
+    "create:strata": "playwright test --project=strata create-property.spec",
+    "create:bmc": "playwright test --project=strata create-property-building-committee",
+    "create:strata:headed": "playwright test --project=strata create-property.spec --headed",
+    "create:bmc:headed": "playwright test --project=strata create-property-building-committee --headed",
+    "create:broker:strata": "playwright test --project=broker create-property.spec",
+    "create:broker:bmc": "playwright test --project=broker create-property-building-committee",
+    "report": "playwright show-report",
+    "typecheck": "tsc --noEmit",
+    "install:browsers": "playwright install chromium"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0",
+    "@types/node": "^22.10.0",
+    "typescript": "^5.7.0"
+  }
+}

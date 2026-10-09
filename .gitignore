@@ -1,0 +1,10 @@
+node_modules/
+test-results/
+playwright-report/
+blob-report/
+# Signed-in Chrome profiles — a live login. Never commit.
+.profile/
+.auth/
+# Optional credentials for unattended sign-in. Never commit.
+.env
+*.log
