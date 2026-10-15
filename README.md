@@ -127,3 +127,9 @@ tests/auth.setup.ts       one-time sign-in per role
 tests/create-property.spec.ts
 tests/create-property-building-committee.spec.ts
 ```
+
+## Claims
+
+`npm run create:strataclaim:headed` creates a Strata Plan property and lodges a claim on it.
+`npm run create:claim:headed --id 1888` lodges a claim on an existing property.
+See [CLAIMS.md](CLAIMS.md).

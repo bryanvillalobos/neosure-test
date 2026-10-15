@@ -77,6 +77,23 @@ function sameValue(a: string, b: string): boolean {
   return norm(a) === norm(b);
 }
 
+/** Read a masked money field ("$5,000.00", "5000.00", "5 000") as a number. */
+function moneyValue(s: string): number {
+  const cleaned = s.replace(/[^\d.-]/g, '');
+  return cleaned === '' ? NaN : Number(cleaned);
+}
+
+export interface SetTextOptions {
+  attempts?: number;
+  /**
+   * The input carries a cents-style currency mask: every key is a digit that
+   * pushes in from the right, so typing "5000" lands as 50.00. Pass the value
+   * in dollars; it is typed as cents (5000 -> "500000") and read back as a
+   * number, so "5,000.00" and "5000" count as the same thing.
+   */
+  money?: boolean;
+}
+
 /**
  * Type into a text/number input the way a person would, then make sure it
  * stuck.
@@ -95,26 +112,46 @@ function sameValue(a: string, b: string): boolean {
 export async function setText(
   target: Locator,
   value: string | number,
-  { attempts = 3 }: { attempts?: number } = {},
+  { attempts = 3, money = false }: SetTextOptions = {},
 ): Promise<void> {
   const want = String(value);
+  const dollars = Number(value);
+  if (money && !Number.isFinite(dollars)) {
+    throw new Error(`setText({ money: true }) needs a number, got "${want}"`);
+  }
+  // What actually gets typed: cents digits for a money mask, the value otherwise.
+  const keys = money ? String(Math.round(dollars * 100)) : want;
+  const matches = (actual: string) =>
+    money ? Math.abs(moneyValue(actual) - dollars) < 0.005 : sameValue(actual, want);
 
   for (let attempt = 1; attempt <= attempts; attempt++) {
     await target.waitFor({ state: 'visible' });
     await target.click();
     await target.press('ControlOrMeta+a');
-    await target.pressSequentially(want, { delay: 10 });
+    await target.pressSequentially(keys, { delay: 10 });
     await target.blur();
 
     await target.page().waitForTimeout(300);
     const actual = await target.inputValue();
-    if (sameValue(actual, want)) return;
+    if (matches(actual)) return;
 
     if (attempt === attempts) {
+      // A value that is there but scaled by 100 is a currency mask, not a
+      // re-render — say so instead of sending the reader down the wrong path.
+      const scaled = moneyValue(actual);
+      const looksMasked =
+        !money &&
+        Number.isFinite(scaled) &&
+        Number.isFinite(dollars) &&
+        dollars !== 0 &&
+        Math.abs(scaled * 100 - dollars) < 0.005;
       throw new Error(
         `Field kept losing its value: wanted "${want}", found "${actual}" after ` +
-          `${attempts} attempts. The block is probably still re-rendering — wait ` +
-          'for something later in it to appear before typing.',
+          `${attempts} attempts. ` +
+          (looksMasked
+            ? 'This input has a cents-style currency mask — pass { money: true }.'
+            : 'The block is probably still re-rendering — wait for something later ' +
+              'in it to appear before typing.'),
       );
     }
     // Give the late render time to land before trying again.
@@ -127,8 +164,9 @@ export async function setTextBySuffix(
   suffix: string,
   value: string | number,
   scope?: Locator,
+  options?: SetTextOptions,
 ): Promise<void> {
-  await setText(byIdSuffix(page, suffix, scope), value);
+  await setText(byIdSuffix(page, suffix, scope), value, options);
 }
 
 /** Pick an option in a native OutSystems dropdown by its visible text. */

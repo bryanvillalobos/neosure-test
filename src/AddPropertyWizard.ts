@@ -158,7 +158,7 @@ export class AddPropertyWizard {
     await setDate(this.page, 'PolicyStartDate', data.policyStartDate);
     await setDate(this.page, 'PolicyExpiryDate', data.policyExpiryDate);
     await setTextBySuffix(this.page, 'PolicyNumber', data.policyNumber);
-    await setTextBySuffix(this.page, 'PremiumPaid', data.premiumPaid);
+    await setTextBySuffix(this.page, 'PremiumPaid', data.premiumPaid, undefined, { money: true });
 
     // Choosing the primary use reveals the rest of the Property Details card.
     await clickSymbolCard(this.page, data.primaryUse);
